@@ -1,16 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line.c                                    :+:      :+:    :+:   */
+/*   get_next_line_bonus.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: aalremei <nastyarv@mail.ru>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/14 14:47:55 by aalremei          #+#    #+#             */
-/*   Updated: 2022/11/24 14:31:56 by aalremei         ###   ########.fr       */
+/*   Updated: 2022/11/24 14:28:54 by aalremei         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "get_next_line.h"
+#include "get_next_line_bonus.h"
 
 static char	*ft_strdup(const char *s1)
 {
@@ -32,9 +32,9 @@ static char	*ft_strdup(const char *s1)
 	return (ptr);
 }
 
-char	*ft_read(int fd)
+static char	*ft_read(int fd)
 {
-	static char		*store;
+	static char		*store[1024];
 	char			*line;
 	char			buf[BUFFER_SIZE + 1];
 	int				r;
@@ -43,16 +43,16 @@ char	*ft_read(int fd)
 	while (r >= 0)
 	{	
 		r = read(fd, buf, BUFFER_SIZE);
-		if (r <= 0 && !store)
+		if (r <= 0 && !store[fd])
 			return (NULL);
 		buf[r] = '\0';
-		if (!store)
-			store = ft_strdup("");
-		store = ft_strjoin(store, buf);
-		if (ft_find_n(store) == 1 || ((buf[0] == '\0') && store))
+		if (!store[fd])
+			store[fd] = ft_strdup("");
+		store[fd] = ft_strjoin(store[fd], buf);
+		if (ft_find_n(store[fd]) == 1 || ((buf[0] == '\0') && store[fd]))
 		{
-			line = ft_lineout(store);
-			store = ft_new_store(store);
+			line = ft_lineout(store[fd]);
+			store[fd] = ft_new_store(store[fd]);
 			return (line);
 		}
 	}
@@ -64,7 +64,7 @@ char	*get_next_line(int fd)
 	char	*line_out;
 
 	line_out = NULL;
-	if (fd < 0 || BUFFER_SIZE <= 0)
+	if (fd < 0 || BUFFER_SIZE <= 0 || BUFFER_SIZE > 2147482646)
 		return (NULL);
 	line_out = ft_read(fd);
 	return (line_out);
